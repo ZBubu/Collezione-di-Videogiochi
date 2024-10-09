@@ -28,8 +28,3 @@ CREATE TABLE contiene (
     FOREIGN KEY (lista_id) REFERENCES lista(id),
     FOREIGN KEY (gioco_titolo) REFERENCES gioco(titolo)
 );
-
-CREATE INDEX idx_lista_pw ON lista (utente_password);
-ALTER TABLE lista 
-ADD COSTRAINT FK_passwordUtente
-FOREIGN KEY (utente_password) REFERENCES utente(password);
