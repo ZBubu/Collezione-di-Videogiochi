@@ -28,3 +28,9 @@ CREATE TABLE contiene (
     FOREIGN KEY (lista_id) REFERENCES lista(id),
     FOREIGN KEY (gioco_titolo) REFERENCES gioco(titolo)
 );
+INSERT INTO gioco(titolo) VALUES("Oriva");
+INSERT INTO gioco(titolo) VALUES("Prova1445");
+INSERT INTO gioco(titolo) VALUES("Prova1323");
+INSERT INTO gioco(titolo) VALUES("Prova123");
+INSERT INTO gioco(titolo) VALUES("Prova23");
+INSERT INTO gioco(titolo) VALUES("Prova4");
