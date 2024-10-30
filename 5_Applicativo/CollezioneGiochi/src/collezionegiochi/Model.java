@@ -4,6 +4,10 @@
  */
 package collezionegiochi;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
+import java.util.List;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -11,7 +15,6 @@ import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.util.Scanner;
-import org.json.*;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -19,23 +22,21 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.net.URLEncoder;
 
 import java.net.ProxySelector;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import com.google.gson.Strictness;
-import com.google.gson.stream.JsonReader;
+
 import java.io.Reader;
 import java.nio.file.Files;
 
 //MYSQL IMPORTS
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject; 
+import java.util.regex.Matcher;
+import java.util.stream.Collectors;
+import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+import java.util.regex.Pattern;
 
 public class Model {
 
@@ -90,17 +91,15 @@ public class Model {
             HttpClient proxy = HttpClient.newBuilder()
                     .proxy(ProxySelector.of(new InetSocketAddress("localhost", 5865)))
                     .build();
+            HttpClient noproxy= HttpClient.newBuilder().build();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(URL))
                     .build();
 
-            HttpResponse<String> response = proxy.send(request, BodyHandlers.ofString());
+            HttpResponse<String> response = noproxy.send(request, BodyHandlers.ofString());
             String responseStr= response.body();
-            
-            Object file = JSONValue.parse(responseStr);
-            JSONObject jo = (JSONObject)file;
-            jo.get("alternate_titles");
-
+            TrovaImmagini(responseStr);
+           
 
             
             //System.out.println("response body: " + response.body());
@@ -109,6 +108,20 @@ public class Model {
         }
     }
     
-    
+    public static void TrovaImmagini(String json) {
 
+        // Definizione dell'espressione regolare per trovare i campi "image"
+        String regex = "\"sample_cover\"\\s*:\\s*\\{[^}]*?\"image\"\\s*:\\s*\"(https?:\\/\\/[^\"\\\\]+)\"";
+
+        // Creazione del pattern e del matcher
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(json);
+
+        // Itera e stampa tutte le corrispondenze trovate
+        while (matcher.find()) {
+            String imageUrl = matcher.group(1);
+            System.out.println("URL trovato: " + imageUrl);
+        }
+    }
 }
+
