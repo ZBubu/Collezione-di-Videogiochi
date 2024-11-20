@@ -19,9 +19,6 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import com.google.gson.Gson; 
-import com.google.gson.GsonBuilder;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 
 public class Model {
 
@@ -55,10 +52,6 @@ public class Model {
         }
     }
 
-
-//URLEncoder.encode("api_key=moby_cCHC70MMaHmCQWg58WH2v4Xne4K", "UTF-8")
-//https://api.mobygames.com/v1/platforms?api_key=moby_cCHC70MMaHmCQWg58WH2v4Xne4K
-
     public static String httpRequest(String URL) throws IOException {
         try {
 
@@ -73,9 +66,7 @@ public class Model {
             HttpResponse<String> response = proxy.send(request, BodyHandlers.ofString());
             String responseStr= response.body();
             return responseStr;
-
             
-            //System.out.println("response body: " + response.body());
         } catch (InterruptedException ex) {
             Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
             return "non va";
@@ -83,15 +74,26 @@ public class Model {
         
     }
     public ArrayList<String> PrendiDati(String json){
+        //CODICE GENERATO CON CHATGPT E MODIFICATO
+        
         ArrayList<String> DatiGiochi = new ArrayList<>();
+
         try {
             Gson gson = new Gson();
             GameResponse gameResponse = gson.fromJson(json,GameResponse.class);
+            //https://api.mobygames.com/v1/games/1/platforms/3
+            String platformURL="https://api.mobygames.com/v1/games/";
+            for(Game game : gameResponse.games){
+                platformURL+=game.gameId+"/platforms/";
+                for(Platform platform : game.platforms){
+                    platformURL+=platform.platformId;
+                }
+            }
             String risultato="";
             for (Game game : gameResponse.games) {
                 risultato="";
                 risultato+="<html>Titolo: "+game.title+"<br>";
-                risultato+="Generi: ";
+                risultato+="Generi: <br>";
                 for(Genre genre : game.genres){
                     risultato+=genre.genreName+", ";
                 }
@@ -99,9 +101,17 @@ public class Model {
                 for (Platform platform : game.platforms) {
                     risultato+="- " + platform.platformName + "(Data di rilascio: "+platform.firstReleaseDate+")<br>";
                 }
+                risultato+="Descrizione: "+game.description;
                 risultato+="</html>";
                 DatiGiochi.add(risultato);
             }
+            //System.out.println(platformURL);
+            //String APIPlatforms=Model.httpRequest(platformURL);
+            //Releases releases = gson.fromJson(APIPlatforms, Releases.class);
+            /*for(Company company : releases){
+                
+            }*/
+            
         } catch (Exception ex) {
             System.out.println(ex.toString()); 
         }

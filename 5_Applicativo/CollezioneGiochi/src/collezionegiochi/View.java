@@ -3,8 +3,10 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package collezionegiochi;
+import static collezionegiochi.Config.API_KEY;
 import static collezionegiochi.Model.httpRequest;
 import java.awt.Image;
+import java.awt.event.*;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.SocketAddress;
@@ -42,44 +44,44 @@ public class View extends javax.swing.JFrame {
     public String getRispostaAPI() {
         return rispostaAPI;
     }
-    
+    MouseListener SchedaMouseListener = new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                Object source = e.getSource();
+                if (source instanceof JLabel) {
+                    JLabel clickedLabel = (JLabel) source;
+                    //System.out.println("Hai cliccato su: " + clickedLabel.getName());
+                    new DialogSchedaGioco(new javax.swing.JFrame(),true,Integer.parseInt(clickedLabel.getName())).setVisible(true);
+                            
+                }
+            }
+        };
     
     public void DisponiImmagini(String MobyURL){
             paths.clear();
+            paths.clear();
             resizeImage.clear();
-                try {
-            rispostaAPI = httpRequest(MobyURL);
-            paths = Model.TrovaImmagini(rispostaAPI,"immagini");
-            titoli = Model.TrovaImmagini(rispostaAPI, "titolo");
-
+            rispostaAPI="";
+            try {
+                rispostaAPI = Model.httpRequest(MobyURL);
+                paths = Model.TrovaImmagini(rispostaAPI,"immagini");
+                titoli = Model.TrovaImmagini(rispostaAPI, "titolo");
             
             SocketAddress addr = new InetSocketAddress("localhost", 5865);
             Proxy proxy = new Proxy(Proxy.Type.HTTP, addr);
-            for(String e : paths){
-                URL url = new URL(e);
+            for(int i=0;i<paths.size();i++){
+                URL url = new URL(paths.get(i));
                 URLConnection conn = url.openConnection(proxy);
+                JLabel GiocoLabel = new JLabel();
+                iconsPanel.add(GiocoLabel);
                 image = ImageIO.read(conn.getInputStream());
                 resizeImage.add( image.getScaledInstance(125, 150, Image.SCALE_DEFAULT));
                 image.flush();
-            }  
-            jLabel1.setIcon(new javax.swing.ImageIcon(resizeImage.get(0)));
-            jLabel2.setIcon(new javax.swing.ImageIcon(resizeImage.get(1)));
-            jLabel3.setIcon(new javax.swing.ImageIcon(resizeImage.get(2)));
-            jLabel4.setIcon(new javax.swing.ImageIcon(resizeImage.get(3)));
-            jLabel5.setIcon(new javax.swing.ImageIcon(resizeImage.get(4)));
-            jLabel6.setIcon(new javax.swing.ImageIcon(resizeImage.get(5)));
-            jLabel7.setIcon(new javax.swing.ImageIcon(resizeImage.get(6)));
-            jLabel8.setIcon(new javax.swing.ImageIcon(resizeImage.get(7)));
-            jLabel9.setIcon(new javax.swing.ImageIcon(resizeImage.get(8)));
-            jLabel10.setIcon(new javax.swing.ImageIcon(resizeImage.get(9)));
-            jLabel11.setIcon(new javax.swing.ImageIcon(resizeImage.get(10)));
-            jLabel12.setIcon(new javax.swing.ImageIcon(resizeImage.get(11)));
-            jLabel13.setIcon(new javax.swing.ImageIcon(resizeImage.get(12)));
-            jLabel14.setIcon(new javax.swing.ImageIcon(resizeImage.get(13)));
-            jLabel15.setIcon(new javax.swing.ImageIcon(resizeImage.get(14)));
-            jLabel16.setIcon(new javax.swing.ImageIcon(resizeImage.get(15)));
-            jLabel17.setIcon(new javax.swing.ImageIcon(resizeImage.get(16)));
-            jLabel18.setIcon(new javax.swing.ImageIcon(resizeImage.get(17)));
+                GiocoLabel.setName(i+"");
+                GiocoLabel.setIcon(new javax.swing.ImageIcon(resizeImage.get(i)));
+                GiocoLabel.addMouseListener(SchedaMouseListener);
+            }
+            
         } catch (Exception ex) {
             Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -88,11 +90,17 @@ public class View extends javax.swing.JFrame {
     public View() {
         initComponents();
         //Inserisco i componenti per il popup
-        popupNewList.add(lblPopup);
+
+
+    }
+    public View(String s){
+        initComponents();
+                popupNewList.add(lblPopup);
         popupNewList.add(tfPopup);
         popupNewList.add(btnPopup);
-        DisponiImmagini("https://api.mobygames.com/v1/games?api_key=moby_cCHC70MMaHmCQWg58WH2v4Xne4K&limit=18");
+        DisponiImmagini("https://api.mobygames.com/v1/games?api_key="+API_KEY+"&limit=20");
     }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -107,24 +115,6 @@ public class View extends javax.swing.JFrame {
         jSeparator1 = new javax.swing.JSeparator();
         jSeparator2 = new javax.swing.JSeparator();
         iconsPanel = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
-        jLabel8 = new javax.swing.JLabel();
-        jLabel9 = new javax.swing.JLabel();
-        jLabel12 = new javax.swing.JLabel();
-        jLabel10 = new javax.swing.JLabel();
-        jLabel11 = new javax.swing.JLabel();
-        jLabel7 = new javax.swing.JLabel();
-        jLabel14 = new javax.swing.JLabel();
-        jLabel15 = new javax.swing.JLabel();
-        jLabel18 = new javax.swing.JLabel();
-        jLabel16 = new javax.swing.JLabel();
-        jLabel17 = new javax.swing.JLabel();
-        jLabel13 = new javax.swing.JLabel();
         leftPanel = new javax.swing.JPanel();
         btnAddList = new javax.swing.JButton();
         lblListe = new javax.swing.JLabel();
@@ -153,132 +143,11 @@ public class View extends javax.swing.JFrame {
         setMinimumSize(new java.awt.Dimension(1000, 500));
         setSize(new java.awt.Dimension(1080, 500));
 
-        jLabel1.addMouseListener(new java.awt.event.MouseAdapter() {
+        iconsPanel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel1MouseClicked(evt);
+                iconsPanelMouseClicked(evt);
             }
         });
-        iconsPanel.add(jLabel1);
-
-        jLabel2.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel2MouseClicked(evt);
-            }
-        });
-        iconsPanel.add(jLabel2);
-
-        jLabel3.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel3MouseClicked(evt);
-            }
-        });
-        iconsPanel.add(jLabel3);
-
-        jLabel6.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel6MouseClicked(evt);
-            }
-        });
-        iconsPanel.add(jLabel6);
-
-        jLabel4.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel4MouseClicked(evt);
-            }
-        });
-        iconsPanel.add(jLabel4);
-
-        jLabel5.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel5MouseClicked(evt);
-            }
-        });
-        iconsPanel.add(jLabel5);
-
-        jLabel8.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel8MouseClicked(evt);
-            }
-        });
-        iconsPanel.add(jLabel8);
-
-        jLabel9.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel9MouseClicked(evt);
-            }
-        });
-        iconsPanel.add(jLabel9);
-
-        jLabel12.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel12MouseClicked(evt);
-            }
-        });
-        iconsPanel.add(jLabel12);
-
-        jLabel10.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel10MouseClicked(evt);
-            }
-        });
-        iconsPanel.add(jLabel10);
-
-        jLabel11.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel11MouseClicked(evt);
-            }
-        });
-        iconsPanel.add(jLabel11);
-
-        jLabel7.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel7MouseClicked(evt);
-            }
-        });
-        iconsPanel.add(jLabel7);
-
-        jLabel14.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel14MouseClicked(evt);
-            }
-        });
-        iconsPanel.add(jLabel14);
-
-        jLabel15.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel15MouseClicked(evt);
-            }
-        });
-        iconsPanel.add(jLabel15);
-
-        jLabel18.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel18MouseClicked(evt);
-            }
-        });
-        iconsPanel.add(jLabel18);
-
-        jLabel16.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel16MouseClicked(evt);
-            }
-        });
-        iconsPanel.add(jLabel16);
-
-        jLabel17.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel17MouseClicked(evt);
-            }
-        });
-        iconsPanel.add(jLabel17);
-
-        jLabel13.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel13MouseClicked(evt);
-            }
-        });
-        iconsPanel.add(jLabel13);
-
         getContentPane().add(iconsPanel, java.awt.BorderLayout.CENTER);
 
         leftPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -325,7 +194,6 @@ public class View extends javax.swing.JFrame {
             }
         });
 
-        textField1.setText("textField1");
         textField1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 textField1ActionPerformed(evt);
@@ -344,18 +212,18 @@ public class View extends javax.swing.JFrame {
                     .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(rightPanelLayout.createSequentialGroup()
                         .addComponent(lblFiltri)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(textField1, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(120, 120, 120))
+                    .addComponent(textField1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(10, Short.MAX_VALUE))
         );
         rightPanelLayout.setVerticalGroup(
             rightPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(rightPanelLayout.createSequentialGroup()
                 .addGap(28, 28, 28)
-                .addGroup(rightPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblFiltri)
-                    .addComponent(textField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 423, Short.MAX_VALUE)
+                .addComponent(lblFiltri)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(textField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 397, Short.MAX_VALUE)
                 .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -375,83 +243,17 @@ public class View extends javax.swing.JFrame {
     }//GEN-LAST:event_textField1ActionPerformed
 
     private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
+        iconsPanel.removeAll();
+        iconsPanel.updateUI();
         if(!textField1.getText().isBlank() || !textField1.getText().isEmpty()){
-            DisponiImmagini("https://api.mobygames.com/v1/games?api_key=moby_cCHC70MMaHmCQWg58WH2v4Xne4K&limit=18&title="+textField1.getText());
+            DisponiImmagini("https://api.mobygames.com/v1/games?api_key="+API_KEY+"&title="+textField1.getText());
         }
     }//GEN-LAST:event_jButton1MouseClicked
 
-    private void jLabel1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel1MouseClicked
-       new SchedaGiochi().setVisible(true);
-    }//GEN-LAST:event_jLabel1MouseClicked
+    private void iconsPanelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_iconsPanelMouseClicked
 
-    private void jLabel2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel2MouseClicked
-       new SchedaGiochi().setVisible(true);
-    }//GEN-LAST:event_jLabel2MouseClicked
-
-    private void jLabel3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel3MouseClicked
-      new SchedaGiochi().setVisible(true);
-    }//GEN-LAST:event_jLabel3MouseClicked
-
-    private void jLabel4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel4MouseClicked
-     new SchedaGiochi().setVisible(true);
-    }//GEN-LAST:event_jLabel4MouseClicked
-
-    private void jLabel5MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel5MouseClicked
-       new SchedaGiochi().setVisible(true);
-    }//GEN-LAST:event_jLabel5MouseClicked
-
-    private void jLabel6MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel6MouseClicked
-       new SchedaGiochi().setVisible(true);
-    }//GEN-LAST:event_jLabel6MouseClicked
-
-    private void jLabel7MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel7MouseClicked
-      new SchedaGiochi().setVisible(true);
-    }//GEN-LAST:event_jLabel7MouseClicked
-
-    private void jLabel8MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel8MouseClicked
-       new SchedaGiochi().setVisible(true);
-    }//GEN-LAST:event_jLabel8MouseClicked
-
-    private void jLabel9MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel9MouseClicked
-       new SchedaGiochi().setVisible(true);
-    }//GEN-LAST:event_jLabel9MouseClicked
-
-    private void jLabel10MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel10MouseClicked
-       new SchedaGiochi().setVisible(true);
-    }//GEN-LAST:event_jLabel10MouseClicked
-
-    private void jLabel11MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel11MouseClicked
-        new SchedaGiochi().setVisible(true);
-    }//GEN-LAST:event_jLabel11MouseClicked
-
-    private void jLabel12MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel12MouseClicked
-       new SchedaGiochi().setVisible(true);
-    }//GEN-LAST:event_jLabel12MouseClicked
-
-    private void jLabel13MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel13MouseClicked
-        new SchedaGiochi().setVisible(true);
-    }//GEN-LAST:event_jLabel13MouseClicked
-
-    private void jLabel14MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel14MouseClicked
-        new SchedaGiochi().setVisible(true);
-    }//GEN-LAST:event_jLabel14MouseClicked
-
-    private void jLabel15MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel15MouseClicked
-        new SchedaGiochi().setVisible(true);
-    }//GEN-LAST:event_jLabel15MouseClicked
-
-    private void jLabel16MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel16MouseClicked
-       new SchedaGiochi().setVisible(true);
-    }//GEN-LAST:event_jLabel16MouseClicked
-
-    private void jLabel17MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel17MouseClicked
-        new SchedaGiochi().setVisible(true);
-    }//GEN-LAST:event_jLabel17MouseClicked
-
-    private void jLabel18MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel18MouseClicked
-        new SchedaGiochi().setVisible(true);
-    }//GEN-LAST:event_jLabel18MouseClicked
-  
+    }//GEN-LAST:event_iconsPanelMouseClicked
+    
     /**
      * @param args the command line arguments
      */
@@ -478,38 +280,23 @@ public class View extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(View.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-
+        
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new View().setVisible(true);
+                new View("s").setVisible(true);
+                
             }
         });
     }
-
+public javax.swing.JFrame getjFrame1(){
+        return this.jFrame1;
+}
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddList;
     private javax.swing.JPanel iconsPanel;
     private javax.swing.JButton jButton1;
     private javax.swing.JFrame jFrame1;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel10;
-    private javax.swing.JLabel jLabel11;
-    private javax.swing.JLabel jLabel12;
-    private javax.swing.JLabel jLabel13;
-    private javax.swing.JLabel jLabel14;
-    private javax.swing.JLabel jLabel15;
-    private javax.swing.JLabel jLabel16;
-    private javax.swing.JLabel jLabel17;
-    private javax.swing.JLabel jLabel18;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
-    private javax.swing.JLabel jLabel9;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JLabel lblFiltri;

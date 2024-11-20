@@ -13,27 +13,24 @@ public class DialogSchedaGioco extends javax.swing.JDialog {
     /**
      * Creates new form DialogSchedaGioco
      */
-    public DialogSchedaGioco(java.awt.Frame parent, boolean modal) {
+    public DialogSchedaGioco(java.awt.Frame parent, boolean modal,int i) {
         super(parent, modal);
         initComponents();
         View v = new View();
-        //element contiene il metodo che ha richiamato la schedagiochi
-        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-        StackTraceElement element = stackTrace[2];
-        int i=0;
-        if(element.getMethodName().length()==19){ //controllo per sapere il numero di cifre
-            i = Integer.valueOf(element.getMethodName().substring(6, 7));
-        }
-        else{
-            i = Integer.valueOf(element.getMethodName().substring(6, 8));
-        }
-        jLabel1.setIcon(new javax.swing.ImageIcon(v.getResizeImage(i-1)));
         Model m = new Model();
-        jLabel2.setText(m.PrendiDati(v.getRispostaAPI()).get(i-1));
-        System.out.println(m.PrendiDati(v.getRispostaAPI()).get(i-1));
+        //System.out.println(v.getResizeImage(i));
+
+        LabelFoto.setIcon(new javax.swing.ImageIcon(v.getResizeImage(i)));
+
+        System.out.println(v.getRispostaAPI());
+       // System.out.println(m.PrendiDati(v.getRispostaAPI()).get(0));
+        LabelTesto.setText(m.PrendiDati(v.getRispostaAPI()).get(i));
 
     }
-
+       public DialogSchedaGioco(java.awt.Frame parent, boolean modal) {
+        super(parent, modal);
+        initComponents();
+       }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -43,15 +40,15 @@ public class DialogSchedaGioco extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
+        LabelFoto = new javax.swing.JLabel();
+        LabelTesto = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
-        jLabel2.setFont(new java.awt.Font("Cambria", 0, 18)); // NOI18N
-        jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        jLabel2.setText("Titolo: ");
-        jLabel2.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        LabelTesto.setFont(new java.awt.Font("Cambria", 0, 18)); // NOI18N
+        LabelTesto.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        LabelTesto.setText("Titolo: ");
+        LabelTesto.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -59,9 +56,9 @@ public class DialogSchedaGioco extends javax.swing.JDialog {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(16, 16, 16)
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(LabelFoto, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 565, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(LabelTesto, javax.swing.GroupLayout.PREFERRED_SIZE, 565, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -70,9 +67,9 @@ public class DialogSchedaGioco extends javax.swing.JDialog {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(LabelFoto, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 138, Short.MAX_VALUE))
-                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(LabelTesto, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
@@ -122,7 +119,7 @@ public class DialogSchedaGioco extends javax.swing.JDialog {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel LabelFoto;
+    private javax.swing.JLabel LabelTesto;
     // End of variables declaration//GEN-END:variables
 }

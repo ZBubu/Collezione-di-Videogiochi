@@ -22,11 +22,15 @@ class Game {
     int gameId;
     @SerializedName("title")
     String title;
+    @SerializedName("description")
+    String description;
     @SerializedName("platforms")
     List<Platform> platforms;
     @SerializedName("genres")
     List<Genre> genres;
+
 }
+
 class Genre{
     @SerializedName("genre_id")
     int genreId;
@@ -40,4 +44,23 @@ class Platform {
     String platformName;
     @SerializedName("first_release_date")
     String firstReleaseDate;
+}
+//https://api.mobygames.com/v1/games/1/platforms/3
+class Releases {
+    @SerializedName("Relases")
+    List<Company> companies;
+}
+class Company {
+    @SerializedName("company_id")
+    String companyId;
+    @SerializedName("company_name")
+    String companyName;
+    @SerializedName("role")
+    String role;
+}
+class Screenshots {
+    @SerializedName("image")
+    String image;
+    @SerializedName("caption")
+    String caption;
 }
