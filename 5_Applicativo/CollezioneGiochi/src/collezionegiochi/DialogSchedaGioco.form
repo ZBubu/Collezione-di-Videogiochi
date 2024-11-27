@@ -24,11 +24,11 @@
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
-              <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
-              <Component id="LabelFoto" min="-2" pref="125" max="-2" attributes="0"/>
-              <EmptySpace type="separate" max="-2" attributes="0"/>
-              <Component id="LabelTesto" min="-2" pref="565" max="-2" attributes="0"/>
               <EmptySpace max="32767" attributes="0"/>
+              <Component id="LabelFoto" min="-2" pref="125" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="LabelTesto" min="-2" pref="590" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -37,11 +37,11 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
+                  <Component id="LabelTesto" max="32767" attributes="0"/>
+                  <Group type="102" attributes="0">
                       <Component id="LabelFoto" min="-2" pref="150" max="-2" attributes="0"/>
-                      <EmptySpace min="0" pref="138" max="32767" attributes="0"/>
+                      <EmptySpace min="0" pref="142" max="32767" attributes="0"/>
                   </Group>
-                  <Component id="LabelTesto" alignment="0" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -52,14 +52,6 @@
     <Component class="javax.swing.JLabel" name="LabelFoto">
     </Component>
     <Component class="javax.swing.JLabel" name="LabelTesto">
-      <Properties>
-        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Cambria" size="18" style="0"/>
-        </Property>
-        <Property name="horizontalAlignment" type="int" value="2"/>
-        <Property name="text" type="java.lang.String" value="Titolo: "/>
-        <Property name="verticalAlignment" type="int" value="1"/>
-      </Properties>
     </Component>
   </SubComponents>
 </Form>

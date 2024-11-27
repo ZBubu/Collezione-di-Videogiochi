@@ -19,9 +19,10 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import com.google.gson.Gson; 
+import java.lang.reflect.Type;
 
 public class Model {
-
+    
     public static String DBQuery(String query, String[] campi) {
         String urldb = "jdbc:mysql://localhost:3306/progettogiochi";
         String username = "sidney";
@@ -73,6 +74,26 @@ public class Model {
         }
         
     }
+    public ArrayList<String> PrendiImmagini(String json){
+        ArrayList<String> arrImm = new ArrayList<>();
+        Gson gson = new Gson();
+        GameResponse gameResponse = gson.fromJson(json,GameResponse.class);
+        String risultato="";
+        String platformURL="https://api.mobygames.com/v1/games/";
+        for(Game game : gameResponse.games){
+            arrImm.add(game.sample_cover.image);
+        }
+        return arrImm;
+    }
+    public ArrayList<Game> PrendiGiochi(String json){
+        ArrayList<Game> arGiochi= new ArrayList<>();
+        Gson gson = new Gson();
+        GameResponse gameResponse = gson.fromJson(json,GameResponse.class);
+        for(Game game : gameResponse.games){
+            arGiochi.add(game);
+        }
+        return arGiochi;
+    }
     public ArrayList<String> PrendiDati(String json){
         //CODICE GENERATO CON CHATGPT E MODIFICATO
         
@@ -81,15 +102,15 @@ public class Model {
         try {
             Gson gson = new Gson();
             GameResponse gameResponse = gson.fromJson(json,GameResponse.class);
-            //https://api.mobygames.com/v1/games/1/platforms/3
+            String risultato="";
             String platformURL="https://api.mobygames.com/v1/games/";
             for(Game game : gameResponse.games){
-                platformURL+=game.gameId+"/platforms/";
-                for(Platform platform : game.platforms){
+            String g=game.gameId+"";
+            System.out.println(g);
+                for(GameClasses platform : game.platforms){
                     platformURL+=platform.platformId;
                 }
             }
-            String risultato="";
             for (Game game : gameResponse.games) {
                 risultato="";
                 risultato+="<html>Titolo: "+game.title+"<br>";
@@ -98,7 +119,7 @@ public class Model {
                     risultato+=genre.genreName+", ";
                 }
                 risultato+="<br>Piattaforme: <br>";
-                for (Platform platform : game.platforms) {
+                for (GameClasses platform : game.platforms) {
                     risultato+="- " + platform.platformName + "(Data di rilascio: "+platform.firstReleaseDate+")<br>";
                 }
                 risultato+="Descrizione: "+game.description;
@@ -117,6 +138,7 @@ public class Model {
         }
         return DatiGiochi;
     }
+    
     public static ArrayList<String> TrovaImmagini(String json,String tipo) {
 
         // Definizione dell'espressione regolare per trovare i campi "image"

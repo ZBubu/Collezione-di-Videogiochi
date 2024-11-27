@@ -13,17 +13,16 @@ public class DialogSchedaGioco extends javax.swing.JDialog {
     /**
      * Creates new form DialogSchedaGioco
      */
-    public DialogSchedaGioco(java.awt.Frame parent, boolean modal,int i) {
+    public DialogSchedaGioco(java.awt.Frame parent, boolean modal,int i,View v) {
         super(parent, modal);
         initComponents();
-        View v = new View();
         Model m = new Model();
-        //System.out.println(v.getResizeImage(i));
-
+        javax.swing.ImageIcon GiocoImage = null;
+        GiocoImage = new javax.swing.ImageIcon(v.getResizeImage(i));
+        Game g =v.getArGioco(i);
+        
         LabelFoto.setIcon(new javax.swing.ImageIcon(v.getResizeImage(i)));
 
-        System.out.println(v.getRispostaAPI());
-       // System.out.println(m.PrendiDati(v.getRispostaAPI()).get(0));
         LabelTesto.setText(m.PrendiDati(v.getRispostaAPI()).get(i));
 
     }
@@ -45,31 +44,26 @@ public class DialogSchedaGioco extends javax.swing.JDialog {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
-        LabelTesto.setFont(new java.awt.Font("Cambria", 0, 18)); // NOI18N
-        LabelTesto.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        LabelTesto.setText("Titolo: ");
-        LabelTesto.setVerticalAlignment(javax.swing.SwingConstants.TOP);
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(16, 16, 16)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(LabelFoto, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(LabelTesto, javax.swing.GroupLayout.PREFERRED_SIZE, 565, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(LabelTesto, javax.swing.GroupLayout.PREFERRED_SIZE, 590, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(LabelTesto, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(LabelFoto, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 138, Short.MAX_VALUE))
-                    .addComponent(LabelTesto, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(0, 142, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 

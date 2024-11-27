@@ -11,17 +11,17 @@ import java.util.List;
  * @author sidney.canonica
  */
 public class Gioco {
-    private List<Platform> platforms;
+    private List<GameClasses> platforms;
 
-    public Gioco(List<Platform> users) {
+    public Gioco(List<GameClasses> users) {
         this.platforms = users;
     }
 
-    public List<Platform> getUsers() {
+    public List<GameClasses> getUsers() {
         return platforms;
     }
 
-    public void setUsers(List<Platform> users) {
+    public void setUsers(List<GameClasses> users) {
         this.platforms = users;
     }
 

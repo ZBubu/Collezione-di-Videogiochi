@@ -31,9 +31,14 @@ public class View extends javax.swing.JFrame {
     //Componenti per le copertine dei giochi
     private ArrayList<String> paths =new ArrayList<>();
     private ArrayList<Image> resizeImage = new ArrayList<>();
+    private ArrayList<Game> arGiochi = new ArrayList<>();
+    public Game getArGioco(int i){
+        return arGiochi.get(i);
+    }
     public Image getResizeImage(int i){
         return resizeImage.get(i);
     }
+
     private Image image = null;
     private ArrayList<String> titoli= new ArrayList<>();
     public String getTitolo(int i){
@@ -44,15 +49,23 @@ public class View extends javax.swing.JFrame {
     public String getRispostaAPI() {
         return rispostaAPI;
     }
+    private View CurrentView;
+    public void setCurrentView(View v){
+        this.CurrentView = v;
+    }
+    public View getCurrentView(){
+        return this.CurrentView;
+    }
+    
+    
     MouseListener SchedaMouseListener = new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 Object source = e.getSource();
                 if (source instanceof JLabel) {
                     JLabel clickedLabel = (JLabel) source;
-                    //System.out.println("Hai cliccato su: " + clickedLabel.getName());
-                    new DialogSchedaGioco(new javax.swing.JFrame(),true,Integer.parseInt(clickedLabel.getName())).setVisible(true);
-                            
+                    int i=Integer.parseInt( clickedLabel.getName());
+                    new DialogSchedaGioco(new javax.swing.JFrame(),true,i,getCurrentView()).setVisible(true);           
                 }
             }
         };
@@ -63,24 +76,39 @@ public class View extends javax.swing.JFrame {
             resizeImage.clear();
             rispostaAPI="";
             try {
-                rispostaAPI = Model.httpRequest(MobyURL);
-                paths = Model.TrovaImmagini(rispostaAPI,"immagini");
-                titoli = Model.TrovaImmagini(rispostaAPI, "titolo");
+            Model m = new Model();
             
+            rispostaAPI = Model.httpRequest(MobyURL);
+            
+            arGiochi=m.PrendiGiochi(rispostaAPI);
+            paths = m.PrendiImmagini(rispostaAPI);
+            
+            titoli = Model.TrovaImmagini(rispostaAPI, "titolo");
             SocketAddress addr = new InetSocketAddress("localhost", 5865);
             Proxy proxy = new Proxy(Proxy.Type.HTTP, addr);
+            javax.swing.ImageIcon imageFile = null;
+            JLabel GiocoLabel = null;
+            URL url = null;
+            URLConnection conn= null;
             for(int i=0;i<paths.size();i++){
-                URL url = new URL(paths.get(i));
-                URLConnection conn = url.openConnection(proxy);
-                JLabel GiocoLabel = new JLabel();
+                url = new URL(paths.get(i));
+                conn = url.openConnection(proxy);
+                GiocoLabel = new JLabel();
+                
                 iconsPanel.add(GiocoLabel);
                 image = ImageIO.read(conn.getInputStream());
                 resizeImage.add( image.getScaledInstance(125, 150, Image.SCALE_DEFAULT));
                 image.flush();
+                
+                imageFile= new javax.swing.ImageIcon(resizeImage.get(i));
+                
                 GiocoLabel.setName(i+"");
-                GiocoLabel.setIcon(new javax.swing.ImageIcon(resizeImage.get(i)));
+                GiocoLabel.setIcon(imageFile);
                 GiocoLabel.addMouseListener(SchedaMouseListener);
             }
+
+
+            
             
         } catch (Exception ex) {
             Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
@@ -90,16 +118,11 @@ public class View extends javax.swing.JFrame {
     public View() {
         initComponents();
         //Inserisco i componenti per il popup
-
-
-    }
-    public View(String s){
-        initComponents();
-                popupNewList.add(lblPopup);
+        popupNewList.add(lblPopup);
         popupNewList.add(tfPopup);
         popupNewList.add(btnPopup);
-        DisponiImmagini("https://api.mobygames.com/v1/games?api_key="+API_KEY+"&limit=20");
     }
+
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -258,7 +281,6 @@ public class View extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
          * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
@@ -280,12 +302,12 @@ public class View extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(View.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-        
-        /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new View("s").setVisible(true);
-                
+                View v = new View();
+                v.DisponiImmagini("https://api.mobygames.com/v1/games?api_key="+API_KEY+"&limit=20");
+                v.setVisible(true);
+                v.setCurrentView(v);
             }
         });
     }

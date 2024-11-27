@@ -24,20 +24,26 @@ class Game {
     String title;
     @SerializedName("description")
     String description;
+    @SerializedName("sample_cover")
+    SampleCover sample_cover;
     @SerializedName("platforms")
-    List<Platform> platforms;
+    List<GameClasses> platforms;
     @SerializedName("genres")
     List<Genre> genres;
+    
 
 }
-
+class SampleCover{
+    @SerializedName("image")
+    String image;
+}
 class Genre{
     @SerializedName("genre_id")
     int genreId;
     @SerializedName("genre_name")
     String genreName;
 }
-class Platform {
+class GameClasses {
     @SerializedName("platform_id")
     int platformId;
     @SerializedName("platform_name")
