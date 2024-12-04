@@ -4,27 +4,37 @@
  */
 package collezionegiochi;
 
+import static collezionegiochi.Config.immagineDefault;
+import java.awt.Image;
+import java.io.IOException;
+import javax.imageio.ImageIO;
+
 /**
  *
  * @author sidney.canonica
  */
 public class DialogSchedaGioco extends javax.swing.JDialog {
-
+    private Game currentGame;
+    private View currentView;
     /**
      * Creates new form DialogSchedaGioco
      */
-    public DialogSchedaGioco(java.awt.Frame parent, boolean modal,int i,View v) {
+    public DialogSchedaGioco(java.awt.Frame parent, boolean modal,int i,View v) throws IOException {
         super(parent, modal);
         initComponents();
         Model m = new Model();
+        currentView = v;
+        currentGame =v.getArGioco(i);
         javax.swing.ImageIcon GiocoImage = null;
-        GiocoImage = new javax.swing.ImageIcon(v.getResizeImage(i));
-        Game g =v.getArGioco(i);
-        
-        LabelFoto.setIcon(new javax.swing.ImageIcon(v.getResizeImage(i)));
+        if(i==-1){
+            Image imageDefault = ImageIO.read(immagineDefault);
+            LabelFoto.setIcon(new javax.swing.ImageIcon(imageDefault));
+        }else{
+            GiocoImage = new javax.swing.ImageIcon(v.getResizeImage(i));
 
-        LabelTesto.setText(m.PrendiDati(v.getRispostaAPI()).get(i));
-
+            LabelFoto.setIcon(new javax.swing.ImageIcon(v.getResizeImage(i)));
+            LabelTesto.setText(m.PrendiDati(v.getRispostaAPI()).get(i));
+        }
     }
        public DialogSchedaGioco(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
@@ -41,16 +51,37 @@ public class DialogSchedaGioco extends javax.swing.JDialog {
 
         LabelFoto = new javax.swing.JLabel();
         LabelTesto = new javax.swing.JLabel();
+        jButton1 = new javax.swing.JButton();
+        nomeLista = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+
+        jButton1.setText("Aggiungi a lista");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        nomeLista.setText("nomeLista");
+        nomeLista.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                nomeListaActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(LabelFoto, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(LabelFoto, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(nomeLista))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(LabelTesto, javax.swing.GroupLayout.PREFERRED_SIZE, 590, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -63,12 +94,27 @@ public class DialogSchedaGioco extends javax.swing.JDialog {
                     .addComponent(LabelTesto, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(LabelFoto, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 142, Short.MAX_VALUE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(nomeLista, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 66, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        Model.DBInsert("INSERT INTO gioco(titolo) VALUES('"+currentGame.gameId+"')");
+        ArrayList<String> Al=this.currentView.getListsNames() ;
+        
+        
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void nomeListaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nomeListaActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_nomeListaActionPerformed
 
     /**
      * @param args the command line arguments
@@ -115,5 +161,7 @@ public class DialogSchedaGioco extends javax.swing.JDialog {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel LabelFoto;
     private javax.swing.JLabel LabelTesto;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JTextField nomeLista;
     // End of variables declaration//GEN-END:variables
 }

@@ -4,9 +4,13 @@
  */
 package collezionegiochi;
 import static collezionegiochi.Config.API_KEY;
+import static collezionegiochi.Config.immagineDefault;
 import static collezionegiochi.Model.httpRequest;
 import java.awt.Image;
 import java.awt.event.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.SocketAddress;
@@ -17,6 +21,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import java.net.URLEncoder;
+import java.sql.SQLException;
+import java.util.HashSet;
 /**
  *
  * @author sidney.canonica
@@ -24,9 +31,9 @@ import javax.swing.*;
 public class View extends javax.swing.JFrame {
 
     //Creo i componenti per il popup
-    private JLabel lblPopup = new JLabel("Nome lista:");
+    /*private JLabel lblPopup = new JLabel("Nome lista:");
     private JTextField tfPopup = new JTextField();
-    private JButton btnPopup = new JButton("Conferma");
+    private JButton btnPopup = new JButton("Conferma");*/
     
     //Componenti per le copertine dei giochi
     private ArrayList<String> paths =new ArrayList<>();
@@ -65,62 +72,141 @@ public class View extends javax.swing.JFrame {
                 if (source instanceof JLabel) {
                     JLabel clickedLabel = (JLabel) source;
                     int i=Integer.parseInt( clickedLabel.getName());
-                    new DialogSchedaGioco(new javax.swing.JFrame(),true,i,getCurrentView()).setVisible(true);           
+                    try {           
+                        new DialogSchedaGioco(new javax.swing.JFrame(),true,i,getCurrentView()).setVisible(true);
+                    } catch (IOException ex) {
+                        Logger.getLogger(View.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
             }
         };
+
     
     public void DisponiImmagini(String MobyURL){
             paths.clear();
             paths.clear();
             resizeImage.clear();
-            rispostaAPI="";
+            arGiochi.clear();
+            
             try {
+                //Dichiaro variabili
+            rispostaAPI="";
             Model m = new Model();
-            
-            rispostaAPI = Model.httpRequest(MobyURL);
-            
-            arGiochi=m.PrendiGiochi(rispostaAPI);
-            paths = m.PrendiImmagini(rispostaAPI);
-            
-            titoli = Model.TrovaImmagini(rispostaAPI, "titolo");
             SocketAddress addr = new InetSocketAddress("localhost", 5865);
             Proxy proxy = new Proxy(Proxy.Type.HTTP, addr);
             javax.swing.ImageIcon imageFile = null;
             JLabel GiocoLabel = null;
+            JLabel ErrorLabel = null;
             URL url = null;
             URLConnection conn= null;
+            int contaNull=-1;
+            
+            
+            rispostaAPI = Model.httpRequest(MobyURL);
+            
+            arGiochi=m.PrendiGiochi(rispostaAPI);
+            for(Game g : arGiochi){
+                if(g.sample_cover == null){
+                    GiocoLabel = new JLabel();
+                    iconsPanel.add(GiocoLabel);
+                    try { 
+                        Image imageDefault = ImageIO.read(immagineDefault);
+                        GiocoLabel.setIcon(new javax.swing.ImageIcon(imageDefault));
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                    GiocoLabel.setName(contaNull+"");
+                    contaNull--;
+                    GiocoLabel.addMouseListener(SchedaMouseListener);
+                }else{
+                    paths.add(g.sample_cover.image);
+                }
+                titoli.add(g.title);
+            }
+
+            if(arGiochi.isEmpty()){
+                ErrorLabel = new JLabel();
+                iconsPanel.add(ErrorLabel);
+                ErrorLabel.setText("La tua ricerca non ha dato risultati.");
+            }
+            
             for(int i=0;i<paths.size();i++){
                 url = new URL(paths.get(i));
                 conn = url.openConnection(proxy);
                 GiocoLabel = new JLabel();
-                
+
                 iconsPanel.add(GiocoLabel);
                 image = ImageIO.read(conn.getInputStream());
-                resizeImage.add( image.getScaledInstance(125, 150, Image.SCALE_DEFAULT));
-                image.flush();
-                
+                resizeImage.add(image.getScaledInstance(125, 150, Image.SCALE_DEFAULT));
                 imageFile= new javax.swing.ImageIcon(resizeImage.get(i));
-                
+                image.flush();
+
                 GiocoLabel.setName(i+"");
                 GiocoLabel.setIcon(imageFile);
                 GiocoLabel.addMouseListener(SchedaMouseListener);
             }
-
-
-            
-            
         } catch (Exception ex) {
             Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    public void CreaLista(){
+        String query="";
+        if(tfLista.getText().isEmpty() || tfLista.getText().isBlank()){
 
+        }else{
+            query ="INSERT INTO lista(nome) VALUES('"+tfLista.getText()+"')";
+            Model.DBInsert(query);
+        }
+    }
+    
+    MouseListener ListaMouseListener = new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                Object source = e.getSource();
+                if (source instanceof JLabel) {
+                    JLabel clickedLabel = (JLabel) source;
+                    String query="SELECT * FROM contiene WHERE id="+clickedLabel.getName();
+                    //SELECT * FROM contiene WHERE id=idLista
+                    /*var rs=Model.DBQuery(query);
+                    while(rs.next()){
+                        
+                    }*/
+                    
+                }
+            }
+        };
+    private ArrayList<String> ListsNames;
+    public ArrayList<String> getListsNames(){
+        return ListsNames;
+    }
+    public void CaricaListe(){
+        String query="SELECT id,nome FROM lista";
+        ListsNames= new ArrayList<>();
+        ArrayList<String> ListsId= new ArrayList<>();
+        JLabel listLabel=null;
+        var rs = Model.DBQuery(query);
+        try {
+            while(rs.next()){
+                ListsNames.add(rs.getString("nome"));
+                ListsId.add(rs.getString("id"));
+            }
+            rs.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(View.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        for(int i=0;i<ListsNames.size();i++){
+            listLabel= new JLabel();
+            leftPanel.add(listLabel);
+            listLabel.setName(ListsId.get(i));
+            listLabel.setText(ListsNames.get(i));
+            listLabel.addMouseListener(ListaMouseListener);
+            leftPanel.updateUI();
+        }    
+    }
     public View() {
         initComponents();
-        //Inserisco i componenti per il popup
-        popupNewList.add(lblPopup);
-        popupNewList.add(tfPopup);
-        popupNewList.add(btnPopup);
+
+        
     }
 
     
@@ -141,6 +227,7 @@ public class View extends javax.swing.JFrame {
         leftPanel = new javax.swing.JPanel();
         btnAddList = new javax.swing.JButton();
         lblListe = new javax.swing.JLabel();
+        tfLista = new java.awt.TextField();
         rightPanel = new javax.swing.JPanel();
         jButton1 = new javax.swing.JButton();
         textField1 = new java.awt.TextField();
@@ -166,6 +253,7 @@ public class View extends javax.swing.JFrame {
         setMinimumSize(new java.awt.Dimension(1000, 500));
         setSize(new java.awt.Dimension(1080, 500));
 
+        iconsPanel.setEnabled(false);
         iconsPanel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 iconsPanelMouseClicked(evt);
@@ -182,29 +270,17 @@ public class View extends javax.swing.JFrame {
                 btnAddListActionPerformed(evt);
             }
         });
+        leftPanel.add(btnAddList);
 
         lblListe.setText("Liste:");
+        leftPanel.add(lblListe);
 
-        javax.swing.GroupLayout leftPanelLayout = new javax.swing.GroupLayout(leftPanel);
-        leftPanel.setLayout(leftPanelLayout);
-        leftPanelLayout.setHorizontalGroup(
-            leftPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(leftPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(leftPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblListe)
-                    .addComponent(btnAddList, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        leftPanelLayout.setVerticalGroup(
-            leftPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(leftPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(lblListe, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 432, Short.MAX_VALUE)
-                .addComponent(btnAddList)
-                .addContainerGap())
-        );
+        tfLista.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tfListaActionPerformed(evt);
+            }
+        });
+        leftPanel.add(tfLista);
 
         getContentPane().add(leftPanel, java.awt.BorderLayout.WEST);
 
@@ -246,7 +322,7 @@ public class View extends javax.swing.JFrame {
                 .addComponent(lblFiltri)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(textField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 397, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 400, Short.MAX_VALUE)
                 .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -257,7 +333,7 @@ public class View extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnAddListActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddListActionPerformed
-        popupNewList.show(this, btnAddList.getX(), btnAddList.getY());
+        CreaLista();
 
     }//GEN-LAST:event_btnAddListActionPerformed
 
@@ -268,14 +344,23 @@ public class View extends javax.swing.JFrame {
     private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
         iconsPanel.removeAll();
         iconsPanel.updateUI();
+        
         if(!textField1.getText().isBlank() || !textField1.getText().isEmpty()){
-            DisponiImmagini("https://api.mobygames.com/v1/games?api_key="+API_KEY+"&title="+textField1.getText());
+            try {
+                DisponiImmagini("https://api.mobygames.com/v1/games?api_key="+API_KEY+"&title="+URLEncoder.encode(textField1.getText(), "UTF-8"));
+            } catch (UnsupportedEncodingException ex) {
+                Logger.getLogger(View.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }//GEN-LAST:event_jButton1MouseClicked
 
     private void iconsPanelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_iconsPanelMouseClicked
 
     }//GEN-LAST:event_iconsPanelMouseClicked
+
+    private void tfListaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tfListaActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tfListaActionPerformed
     
     /**
      * @param args the command line arguments
@@ -308,6 +393,7 @@ public class View extends javax.swing.JFrame {
                 v.DisponiImmagini("https://api.mobygames.com/v1/games?api_key="+API_KEY+"&limit=20");
                 v.setVisible(true);
                 v.setCurrentView(v);
+                v.CaricaListe();
             }
         });
     }
@@ -327,6 +413,7 @@ public javax.swing.JFrame getjFrame1(){
     private javax.swing.JPopupMenu popupNewList;
     private javax.swing.JPanel rightPanel;
     private java.awt.TextField textField1;
+    private java.awt.TextField tfLista;
     // End of variables declaration//GEN-END:variables
 
 

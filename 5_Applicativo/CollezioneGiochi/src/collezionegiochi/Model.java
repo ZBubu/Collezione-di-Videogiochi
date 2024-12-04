@@ -19,24 +19,58 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import com.google.gson.Gson; 
+import com.google.gson.GsonBuilder;
 import java.lang.reflect.Type;
 
 public class Model {
+    private static final String urldb = "jdbc:mysql://localhost:3306/progettogiochi";
+    private static final String username = "sidney";
+    private static final String password = "Admin";
     
-    public static String DBQuery(String query, String[] campi) {
-        String urldb = "jdbc:mysql://localhost:3306/progettogiochi";
-        String username = "sidney";
-        String password = "Admin";
-        Connection c;
+    public static void DBInsert(String query){
+        Connection c = null;
+        Statement stmt = null;
+        int n = 0;
+        try {
+            System.out.println("Query eseguita: "+query);
+            //Connessione
+            c = DriverManager.getConnection(urldb, username, password);
+            //Creazione statement
+            stmt = c.createStatement();
+            n= stmt.executeUpdate(query);                
+            System.out.println("Sono state cambiate "+n+" righe.") ;
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        }
+        finally{            
+            if(stmt != null){
+                try{
+                    stmt.close();
+                } catch(SQLException sqlEx){ }
+            }
+            stmt = null;
+        }
+    }
+    
+    public static ResultSet DBQuery(String query) {
+        Connection c=null;
+        ResultSet rset= null;
         try {
             //Connessione
             c = DriverManager.getConnection(urldb, username, password);
             //Creazione statement
             Statement stmt = c.createStatement();
             //Creazione Query SQL
-            String str = query;
-            ResultSet rset = stmt.executeQuery(str);
-            System.out.println("I record sono:");
+             rset = stmt.executeQuery(query);
+            
+        }
+            catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        }
+        return rset;
+    }
+            
+            /*System.out.println("I record sono:");
             int rowCount = 0;
             String risultato = "";
             while (rset.next()) {   // Repeatedly process each row
@@ -50,8 +84,8 @@ public class Model {
         } catch (SQLException ex) {
             System.out.println(ex.getMessage());
             return ex.getMessage();
-        }
-    }
+        }*/
+    
 
     public static String httpRequest(String URL) throws IOException {
         try {
@@ -70,7 +104,7 @@ public class Model {
             
         } catch (InterruptedException ex) {
             Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
-            return "non va";
+            return ex.getMessage();
         }
         
     }
@@ -85,6 +119,7 @@ public class Model {
         }
         return arrImm;
     }
+    
     public ArrayList<Game> PrendiGiochi(String json){
         ArrayList<Game> arGiochi= new ArrayList<>();
         Gson gson = new Gson();
@@ -94,13 +129,16 @@ public class Model {
         }
         return arGiochi;
     }
+    
     public ArrayList<String> PrendiDati(String json){
         //CODICE GENERATO CON CHATGPT E MODIFICATO
         
         ArrayList<String> DatiGiochi = new ArrayList<>();
 
         try {
-            Gson gson = new Gson();
+            GsonBuilder builder = new GsonBuilder();
+            builder.serializeNulls();
+            Gson gson = builder.create();
             GameResponse gameResponse = gson.fromJson(json,GameResponse.class);
             String risultato="";
             String platformURL="https://api.mobygames.com/v1/games/";
@@ -138,7 +176,7 @@ public class Model {
         }
         return DatiGiochi;
     }
-    
+    /*
     public static ArrayList<String> TrovaImmagini(String json,String tipo) {
 
         // Definizione dell'espressione regolare per trovare i campi "image"
@@ -162,6 +200,6 @@ public class Model {
         }
         return imagesUrl;
 
-    }
+    }*/
 }
 
