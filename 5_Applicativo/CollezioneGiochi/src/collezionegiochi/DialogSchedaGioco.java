@@ -107,7 +107,14 @@ public class DialogSchedaGioco extends javax.swing.JDialog {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         Model.DBInsert("INSERT INTO gioco(titolo) VALUES('"+currentGame.gameId+"')");
-        ArrayList<String> Al=this.currentView.getListsNames() ;
+        var ListsNames = this.currentView.getListsNames();
+        var ListsIds = this.currentView.getListsId();
+        
+        for(int i=0;i<ListsNames.size();i++){
+            if(ListsNames.get(i).equalsIgnoreCase(nomeLista.getText())){
+                Model.DBInsert("INSERT INTO contiene(lista_id,gioco_titolo) VALUES("+ListsIds.get(i)+","+currentGame.gameId+")");
+            }
+        }
         
         
     }//GEN-LAST:event_jButton1ActionPerformed

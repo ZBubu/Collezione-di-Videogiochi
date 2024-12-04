@@ -175,14 +175,31 @@ public class View extends javax.swing.JFrame {
                 }
             }
         };
+    public void MostraGiochiLista(String listId){
+        String query="SELECT * FROM contiene WHERE id = "+listId;
+        var rs=Model.DBQuery(query);
+        try {
+            while(rs.next()){
+                rs.getString("gioco_titolo");
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(View.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }
+
     private ArrayList<String> ListsNames;
     public ArrayList<String> getListsNames(){
         return ListsNames;
     }
+    private ArrayList<String> ListsId;
+    public ArrayList<String> getListsId(){
+        return ListsId;
+    }
     public void CaricaListe(){
         String query="SELECT id,nome FROM lista";
         ListsNames= new ArrayList<>();
-        ArrayList<String> ListsId= new ArrayList<>();
+        ListsId= new ArrayList<>();
         JLabel listLabel=null;
         var rs = Model.DBQuery(query);
         try {

@@ -144,7 +144,6 @@ public class Model {
             String platformURL="https://api.mobygames.com/v1/games/";
             for(Game game : gameResponse.games){
             String g=game.gameId+"";
-            System.out.println(g);
                 for(GameClasses platform : game.platforms){
                     platformURL+=platform.platformId;
                 }
