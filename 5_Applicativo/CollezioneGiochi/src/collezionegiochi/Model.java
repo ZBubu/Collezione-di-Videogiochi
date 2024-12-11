@@ -120,49 +120,57 @@ public class Model {
         return arrImm;
     }
     
+    public ArrayList<Game> PrendiGiochiNull(String json){
+    ArrayList<Game> arGiochi= new ArrayList<>();
+    Gson gson = new Gson();
+    GameResponse gameResponse = gson.fromJson(json,GameResponse.class);
+    for(Game game : gameResponse.games){
+        if(game.sample_cover==null){
+            arGiochi.add(game);
+        }
+    }
+    return arGiochi;
+    }
+    
     public ArrayList<Game> PrendiGiochi(String json){
         ArrayList<Game> arGiochi= new ArrayList<>();
         Gson gson = new Gson();
         GameResponse gameResponse = gson.fromJson(json,GameResponse.class);
         for(Game game : gameResponse.games){
-            arGiochi.add(game);
+            if(game.sample_cover != null){
+                arGiochi.add(game);
+            }
         }
         return arGiochi;
     }
-    
-    public ArrayList<String> PrendiDati(String json){
+       public ArrayList<String> PrendiDati(Game game){
         //CODICE GENERATO CON CHATGPT E MODIFICATO
         
         ArrayList<String> DatiGiochi = new ArrayList<>();
 
         try {
-            GsonBuilder builder = new GsonBuilder();
-            builder.serializeNulls();
-            Gson gson = builder.create();
-            GameResponse gameResponse = gson.fromJson(json,GameResponse.class);
+            
             String risultato="";
-            String platformURL="https://api.mobygames.com/v1/games/";
-            for(Game game : gameResponse.games){
+
+            risultato="";
+            risultato+="<html>Titolo: "+game.title+"<br>";
+            risultato+="Generi: <br>";
+            for(Genre genre : game.genres){
+                risultato+=genre.genreName+", ";
+            }
+            risultato+="<br>Piattaforme: <br>";
+            for (GameClasses platform : game.platforms) {
+                risultato+="- " + platform.platformName + "(Data di rilascio: "+platform.firstReleaseDate+")<br>";
+            }
+            risultato+="Descrizione: "+game.description;
+            risultato+="</html>";
+            DatiGiochi.add(risultato);
+            
+            /*String platformURL="https://api.mobygames.com/v1/games/";
             String g=game.gameId+"";
                 for(GameClasses platform : game.platforms){
-                    platformURL+=platform.platformId;
-                }
-            }
-            for (Game game : gameResponse.games) {
-                risultato="";
-                risultato+="<html>Titolo: "+game.title+"<br>";
-                risultato+="Generi: <br>";
-                for(Genre genre : game.genres){
-                    risultato+=genre.genreName+", ";
-                }
-                risultato+="<br>Piattaforme: <br>";
-                for (GameClasses platform : game.platforms) {
-                    risultato+="- " + platform.platformName + "(Data di rilascio: "+platform.firstReleaseDate+")<br>";
-                }
-                risultato+="Descrizione: "+game.description;
-                risultato+="</html>";
-                DatiGiochi.add(risultato);
-            }
+                    platformURL+=platform.platformId;    
+            }*/
             //System.out.println(platformURL);
             //String APIPlatforms=Model.httpRequest(platformURL);
             //Releases releases = gson.fromJson(APIPlatforms, Releases.class);
@@ -175,30 +183,5 @@ public class Model {
         }
         return DatiGiochi;
     }
-    /*
-    public static ArrayList<String> TrovaImmagini(String json,String tipo) {
-
-        // Definizione dell'espressione regolare per trovare i campi "image"
-        //le espressioni regolari le ha generate chatgpt.
-        String regex="";
-        if(tipo.equals("immagini")){
-            regex = "\"sample_cover\"\\s*:\\s*\\{[^}]*?\"image\"\\s*:\\s*\"(https?:\\/\\/[^\"\\\\]+)\"";
-        }
-        if(tipo.equals("titolo")){
-            regex = "\"title\":\\s*\"([^\"]*)\"";
-        }
-
-        // Creazione del pattern e del matcher
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(json);
-
-        ArrayList<String> imagesUrl =new ArrayList<>();
-        while (matcher.find()) {
-            imagesUrl.add(matcher.group(1));
-
-        }
-        return imagesUrl;
-
-    }*/
 }
 

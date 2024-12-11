@@ -3,8 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package collezionegiochi;
-import static collezionegiochi.Config.API_KEY;
-import static collezionegiochi.Config.immagineDefault;
+import static collezionegiochi.Config.*;
 import static collezionegiochi.Model.httpRequest;
 import java.awt.Image;
 import java.awt.event.*;
@@ -39,6 +38,10 @@ public class View extends javax.swing.JFrame {
     private ArrayList<String> paths =new ArrayList<>();
     private ArrayList<Image> resizeImage = new ArrayList<>();
     private ArrayList<Game> arGiochi = new ArrayList<>();
+    private ArrayList<Game> arGiochiNull = new ArrayList<>();
+    public Game getArGiocoNull(int i){
+        return arGiochiNull.get(i);
+    }
     public Game getArGioco(int i){
         return arGiochi.get(i);
     }
@@ -87,6 +90,7 @@ public class View extends javax.swing.JFrame {
             paths.clear();
             resizeImage.clear();
             arGiochi.clear();
+            arGiochiNull.clear();
             
             try {
                 //Dichiaro variabili
@@ -105,22 +109,9 @@ public class View extends javax.swing.JFrame {
             rispostaAPI = Model.httpRequest(MobyURL);
             
             arGiochi=m.PrendiGiochi(rispostaAPI);
+            arGiochiNull=m.PrendiGiochiNull(rispostaAPI);
             for(Game g : arGiochi){
-                if(g.sample_cover == null){
-                    GiocoLabel = new JLabel();
-                    iconsPanel.add(GiocoLabel);
-                    try { 
-                        Image imageDefault = ImageIO.read(immagineDefault);
-                        GiocoLabel.setIcon(new javax.swing.ImageIcon(imageDefault));
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    }
-                    GiocoLabel.setName(contaNull+"");
-                    contaNull--;
-                    GiocoLabel.addMouseListener(SchedaMouseListener);
-                }else{
-                    paths.add(g.sample_cover.image);
-                }
+                paths.add(g.sample_cover.image); 
                 titoli.add(g.title);
             }
 
@@ -145,6 +136,19 @@ public class View extends javax.swing.JFrame {
                 GiocoLabel.setIcon(imageFile);
                 GiocoLabel.addMouseListener(SchedaMouseListener);
             }
+            for(Game g : arGiochiNull){
+                GiocoLabel = new JLabel();
+                iconsPanel.add(GiocoLabel);
+                try { 
+                    Image imageDefault = ImageIO.read(immagineDefault);
+                    GiocoLabel.setIcon(new javax.swing.ImageIcon(imageDefault));
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+                GiocoLabel.setName(contaNull+"");
+                contaNull--;
+                GiocoLabel.addMouseListener(SchedaMouseListener);
+            }
         } catch (Exception ex) {
             Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -152,10 +156,15 @@ public class View extends javax.swing.JFrame {
     public void CreaLista(){
         String query="";
         if(tfLista.getText().isEmpty() || tfLista.getText().isBlank()){
-
+                iconsPanel.removeAll();
+                JLabel ErrorLabel = new JLabel();
+                iconsPanel.add(ErrorLabel);
+                ErrorLabel.setText("Non puoi creare una lista senza nome");
+                iconsPanel.updateUI();
         }else{
             query ="INSERT INTO lista(nome) VALUES('"+tfLista.getText()+"')";
             Model.DBInsert(query);
+            
         }
     }
     
@@ -165,27 +174,39 @@ public class View extends javax.swing.JFrame {
                 Object source = e.getSource();
                 if (source instanceof JLabel) {
                     JLabel clickedLabel = (JLabel) source;
-                    String query="SELECT * FROM contiene WHERE id="+clickedLabel.getName();
-                    //SELECT * FROM contiene WHERE id=idLista
-                    /*var rs=Model.DBQuery(query);
-                    while(rs.next()){
-                        
-                    }*/
-                    
+                    MostraGiochiLista(clickedLabel.getName());
                 }
             }
         };
+    
     public void MostraGiochiLista(String listId){
-        String query="SELECT * FROM contiene WHERE id = "+listId;
+        String query="SELECT gioco_titolo FROM contiene WHERE lista_id = "+listId;
         var rs=Model.DBQuery(query);
+        ArrayList<String> ListaIdGiochi= new ArrayList<>();
         try {
-            while(rs.next()){
-                rs.getString("gioco_titolo");
+            while(rs.next()){ //Ciclo gli id dei giochi nella lista e li salvo.
+                ListaIdGiochi.add(rs.getString("gioco_titolo"));
             }
         } catch (SQLException ex) {
             Logger.getLogger(View.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+        if(!ListaIdGiochi.isEmpty()){
+            /*In base agli id creo l'URL per
+            la richiesta all'API*/
+            String url="https://api.mobygames.com/v1/games?api_key="+API_KEY;
+            for(String id : ListaIdGiochi){ 
+                url+="&id="+id;
+            }
+            iconsPanel.removeAll();
+            DisponiImmagini(url);
+            iconsPanel.updateUI();
+        }else{
+            iconsPanel.removeAll();
+            JLabel ErrorLabel = new JLabel();
+            iconsPanel.add(ErrorLabel);
+            ErrorLabel.setText("La lista è vuota");
+            iconsPanel.updateUI();
+        }
     }
 
     private ArrayList<String> ListsNames;
@@ -202,6 +223,7 @@ public class View extends javax.swing.JFrame {
         ListsId= new ArrayList<>();
         JLabel listLabel=null;
         var rs = Model.DBQuery(query);
+        //Controllo le liste presenti nel database
         try {
             while(rs.next()){
                 ListsNames.add(rs.getString("nome"));
@@ -211,19 +233,18 @@ public class View extends javax.swing.JFrame {
         } catch (SQLException ex) {
             Logger.getLogger(View.class.getName()).log(Level.SEVERE, null, ex);
         }
+        //Per ogni lista creo una label
         for(int i=0;i<ListsNames.size();i++){
             listLabel= new JLabel();
-            leftPanel.add(listLabel);
+            jPanel1.add(listLabel);
             listLabel.setName(ListsId.get(i));
-            listLabel.setText(ListsNames.get(i));
+            listLabel.setText("<html><u>"+ListsNames.get(i)+"</u></html>");
             listLabel.addMouseListener(ListaMouseListener);
-            leftPanel.updateUI();
+            jPanel1.updateUI();
         }    
     }
     public View() {
         initComponents();
-
-        
     }
 
     
@@ -245,6 +266,7 @@ public class View extends javax.swing.JFrame {
         btnAddList = new javax.swing.JButton();
         lblListe = new javax.swing.JLabel();
         tfLista = new java.awt.TextField();
+        jPanel1 = new javax.swing.JPanel();
         rightPanel = new javax.swing.JPanel();
         jButton1 = new javax.swing.JButton();
         textField1 = new java.awt.TextField();
@@ -279,6 +301,7 @@ public class View extends javax.swing.JFrame {
         getContentPane().add(iconsPanel, java.awt.BorderLayout.CENTER);
 
         leftPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        leftPanel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         btnAddList.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
         btnAddList.setText("+");
@@ -287,17 +310,18 @@ public class View extends javax.swing.JFrame {
                 btnAddListActionPerformed(evt);
             }
         });
-        leftPanel.add(btnAddList);
+        leftPanel.add(btnAddList, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 450, 80, 60));
 
-        lblListe.setText("Liste:");
-        leftPanel.add(lblListe);
+        lblListe.setText("Nome Lista:");
+        leftPanel.add(lblListe, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 400, -1, -1));
 
         tfLista.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 tfListaActionPerformed(evt);
             }
         });
-        leftPanel.add(tfLista);
+        leftPanel.add(tfLista, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 420, 70, -1));
+        leftPanel.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 70, 390));
 
         getContentPane().add(leftPanel, java.awt.BorderLayout.WEST);
 
@@ -364,7 +388,7 @@ public class View extends javax.swing.JFrame {
         
         if(!textField1.getText().isBlank() || !textField1.getText().isEmpty()){
             try {
-                DisponiImmagini("https://api.mobygames.com/v1/games?api_key="+API_KEY+"&title="+URLEncoder.encode(textField1.getText(), "UTF-8"));
+                DisponiImmagini("https://api.mobygames.com/v1/games?api_key="+API_KEY+"&title="+URLEncoder.encode(textField1.getText(), "UTF-8")+"&limit=66");
             } catch (UnsupportedEncodingException ex) {
                 Logger.getLogger(View.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -407,10 +431,11 @@ public class View extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 View v = new View();
-                v.DisponiImmagini("https://api.mobygames.com/v1/games?api_key="+API_KEY+"&limit=20");
+                v.DisponiImmagini("https://api.mobygames.com/v1/games?api_key="+API_KEY+"&limit=66");
                 v.setVisible(true);
                 v.setCurrentView(v);
                 v.CaricaListe();
+                
             }
         });
     }
@@ -422,6 +447,7 @@ public javax.swing.JFrame getjFrame1(){
     private javax.swing.JPanel iconsPanel;
     private javax.swing.JButton jButton1;
     private javax.swing.JFrame jFrame1;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JLabel lblFiltri;
