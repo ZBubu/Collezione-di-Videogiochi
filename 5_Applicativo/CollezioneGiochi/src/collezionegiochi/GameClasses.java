@@ -51,7 +51,7 @@ class GameClasses {
     @SerializedName("first_release_date")
     String firstReleaseDate;
 }
-//https://api.mobygames.com/v1/games/1/platforms/3
+
 class Releases {
     @SerializedName("Relases")
     List<Company> companies;

@@ -4,6 +4,7 @@
  */
 package collezionegiochi;
 
+import static collezionegiochi.Config.*;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
@@ -16,16 +17,11 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import com.google.gson.Gson; 
-import com.google.gson.GsonBuilder;
-import java.lang.reflect.Type;
+
 
 public class Model {
-    private static final String urldb = "jdbc:mysql://localhost:3306/progettogiochi";
-    private static final String username = "sidney";
-    private static final String password = "Admin";
+
     
     public static void DBInsert(String query){
         Connection c = null;
@@ -166,7 +162,12 @@ public class Model {
             risultato+="</html>";
             DatiGiochi.add(risultato);
             
-            /*String platformURL="https://api.mobygames.com/v1/games/";
+            
+        } catch (Exception ex) {
+            System.out.println(ex.toString()); 
+        }
+        return DatiGiochi;
+                    /*String platformURL="https://api.mobygames.com/v1/games/";
             String g=game.gameId+"";
                 for(GameClasses platform : game.platforms){
                     platformURL+=platform.platformId;    
@@ -177,11 +178,6 @@ public class Model {
             /*for(Company company : releases){
                 
             }*/
-            
-        } catch (Exception ex) {
-            System.out.println(ex.toString()); 
-        }
-        return DatiGiochi;
     }
 }
 

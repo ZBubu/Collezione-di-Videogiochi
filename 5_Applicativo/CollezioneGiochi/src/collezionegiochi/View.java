@@ -27,46 +27,44 @@ import java.util.HashSet;
  *
  * @author sidney.canonica
  */
-public class View extends javax.swing.JFrame {
-
-    //Creo i componenti per il popup
-    /*private JLabel lblPopup = new JLabel("Nome lista:");
-    private JTextField tfPopup = new JTextField();
-    private JButton btnPopup = new JButton("Conferma");*/
-    
+public class View extends javax.swing.JFrame {    
     //Componenti per le copertine dei giochi
     private ArrayList<String> paths =new ArrayList<>();
     private ArrayList<Image> resizeImage = new ArrayList<>();
     private ArrayList<Game> arGiochi = new ArrayList<>();
     private ArrayList<Game> arGiochiNull = new ArrayList<>();
+    private Image image = null;
+    private ArrayList<String> titoli= new ArrayList<>();
+    private String rispostaAPI;
+    private View CurrentView;
+    
     public Game getArGiocoNull(int i){
         return arGiochiNull.get(i);
     }
+    
     public Game getArGioco(int i){
         return arGiochi.get(i);
     }
+    
     public Image getResizeImage(int i){
         return resizeImage.get(i);
     }
-
-    private Image image = null;
-    private ArrayList<String> titoli= new ArrayList<>();
+    
     public String getTitolo(int i){
         return titoli.get(i);
     }
-    private String rispostaAPI;
-
+    
     public String getRispostaAPI() {
         return rispostaAPI;
     }
-    private View CurrentView;
+
     public void setCurrentView(View v){
         this.CurrentView = v;
     }
+    
     public View getCurrentView(){
         return this.CurrentView;
     }
-    
     
     MouseListener SchedaMouseListener = new MouseAdapter() {
             @Override
@@ -164,6 +162,9 @@ public class View extends javax.swing.JFrame {
         }else{
             query ="INSERT INTO lista(nome) VALUES('"+tfLista.getText()+"')";
             Model.DBInsert(query);
+            panelListe.removeAll();
+            CaricaListe();
+            
             
         }
     }
@@ -236,11 +237,11 @@ public class View extends javax.swing.JFrame {
         //Per ogni lista creo una label
         for(int i=0;i<ListsNames.size();i++){
             listLabel= new JLabel();
-            jPanel1.add(listLabel);
+            panelListe.add(listLabel);
             listLabel.setName(ListsId.get(i));
             listLabel.setText("<html><u>"+ListsNames.get(i)+"</u></html>");
             listLabel.addMouseListener(ListaMouseListener);
-            jPanel1.updateUI();
+            panelListe.updateUI();
         }    
     }
     public View() {
@@ -266,7 +267,7 @@ public class View extends javax.swing.JFrame {
         btnAddList = new javax.swing.JButton();
         lblListe = new javax.swing.JLabel();
         tfLista = new java.awt.TextField();
-        jPanel1 = new javax.swing.JPanel();
+        panelListe = new javax.swing.JPanel();
         rightPanel = new javax.swing.JPanel();
         jButton1 = new javax.swing.JButton();
         textField1 = new java.awt.TextField();
@@ -321,7 +322,7 @@ public class View extends javax.swing.JFrame {
             }
         });
         leftPanel.add(tfLista, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 420, 70, -1));
-        leftPanel.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 70, 390));
+        leftPanel.add(panelListe, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 70, 390));
 
         getContentPane().add(leftPanel, java.awt.BorderLayout.WEST);
 
@@ -375,7 +376,6 @@ public class View extends javax.swing.JFrame {
 
     private void btnAddListActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddListActionPerformed
         CreaLista();
-
     }//GEN-LAST:event_btnAddListActionPerformed
 
     private void textField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textField1ActionPerformed
@@ -435,7 +435,6 @@ public class View extends javax.swing.JFrame {
                 v.setVisible(true);
                 v.setCurrentView(v);
                 v.CaricaListe();
-                
             }
         });
     }
@@ -447,12 +446,12 @@ public javax.swing.JFrame getjFrame1(){
     private javax.swing.JPanel iconsPanel;
     private javax.swing.JButton jButton1;
     private javax.swing.JFrame jFrame1;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JLabel lblFiltri;
     private javax.swing.JLabel lblListe;
     private javax.swing.JPanel leftPanel;
+    private javax.swing.JPanel panelListe;
     private javax.swing.JPopupMenu popupNewList;
     private javax.swing.JPanel rightPanel;
     private java.awt.TextField textField1;
